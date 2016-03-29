@@ -1,6 +1,6 @@
 nautilus-convert2svg (0.1.0-1ubuntu4) wily; urgency=medium
 
-  * using PILLOW to conver a bmp
+  * using PILLOW to convert a bmp
 
  -- Lorenzo Carbonell <lorenzo.carbonell.cerezo@gmail.com>  Tue, 29 Mar 2016 23:10:58 +0200
 
