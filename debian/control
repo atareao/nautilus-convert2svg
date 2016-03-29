@@ -1,0 +1,20 @@
+Source: nautilus-convert2svg
+Section: utils
+Priority: extra
+Maintainer: Lorenzo Carbonell Cerezo <lorenzo.carbonell.cerezo@gmail.com>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.4
+Homepage: http://www.atareao.es
+
+Package: nautilus-convert2svg
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends},
+    python,
+    python-gi,
+    python-cairo,
+    gir1.2-nautilus-3.0,
+    python-nautilus,
+    python-pil,
+    potrace
+Description: An extension for Nautilus to convert image files to svg
+ An extension for Nautilus to convert image files to svg from menu
