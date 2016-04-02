@@ -211,7 +211,7 @@ class SVGConvereterMenuProvider(GObject.GObject, FileManager.MenuProvider):
             fileName, fileExtension = os.path.splitext(unquote_plus(
                 item.get_uri()[7:]))
             if fileExtension.lower() not in EXTENSIONS_FROM:
-                return Fase
+                return False
         return True
 
     def convert(self, menu, selected):
