@@ -79,22 +79,11 @@ class DoItInBackground(IdleObject, Thread):
     def stop(self, *args):
         self.stopit = True
 
-    def convert2ogg(self, file_in):
-        tmp_file_out = tempfile.NamedTemporaryFile(
-            prefix='tmp_convert2ogg_file_', dir='/tmp/').name
-        tmp_file_out += '.ogg'
-        rutine = 'ffmpeg -i "%s" -vn -acodec libvorbis -y "%s"' % (
-            file_in, tmp_file_out)
+    def ejecuta(self, rutine):
         args = shlex.split(rutine)
         self.process = subprocess.Popen(args, stdout=subprocess.PIPE)
         out, err = self.process.communicate()
         print(out, err)
-        file_out = get_output_filename(file_in)
-        if os.path.exists(file_out):
-            os.remove(file_out)
-        shutil.copyfile(tmp_file_out, file_out)
-        if os.path.exists(tmp_file_out):
-            os.remove(tmp_file_out)
 
     def convert2svg(self, file_in):
         tmp_file_out_1 = tempfile.NamedTemporaryFile(
@@ -114,8 +103,8 @@ class DoItInBackground(IdleObject, Thread):
             os.remove(tmp_file_out_3)
         convertImage2Bmp(file_in, tmp_file_out_1)
         # ejecuta(rutine1)
-        ejecuta(rutine2)
-        ejecuta(rutine3)
+        self.ejecuta(rutine2)
+        self.ejecuta(rutine3)
         file_out = get_output_filename(file_in)
         if os.path.exists(file_out):
             os.remove(file_out)
@@ -129,7 +118,9 @@ class DoItInBackground(IdleObject, Thread):
 
     def run(self):
         total = 0
-        self.emit('started', len(self.elements))
+        for element in self.elements:
+            total += get_duration(element)
+        self.emit('started', total)
         try:
             total = 0
             for element in self.elements:
@@ -138,7 +129,7 @@ class DoItInBackground(IdleObject, Thread):
                     break
                 self.emit('start_one', element)
                 self.convert2svg(element)
-                self.emit('end_one', 1)
+                self.emit('end_one', get_duration(element))
         except Exception as e:
             self.ok = False
         try:
@@ -150,13 +141,16 @@ class DoItInBackground(IdleObject, Thread):
         self.emit('ended', self.ok)
 
 
-class Progreso(Gtk.Dialog):
+class Progreso(Gtk.Dialog, IdleObject):
     __gsignals__ = {
         'i-want-stop': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
     }
 
-    def __init__(self, title, parent, max_value):
-        Gtk.Dialog.__init__(self, title, parent)
+    def __init__(self, title, parent):
+        Gtk.Dialog.__init__(self, title, parent,
+                            Gtk.DialogFlags.MODAL |
+                            Gtk.DialogFlags.DESTROY_WITH_PARENT)
+        IdleObject.__init__(self)
         self.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
         self.set_size_request(330, 30)
         self.set_resizable(False)
@@ -235,6 +229,10 @@ def get_output_filename(file_in):
     return file_out
 
 
+def get_duration(file_in):
+    return os.path.getsize(file_in)
+
+
 def get_files(files_in):
     files = []
     for file_in in files_in:
@@ -261,7 +259,7 @@ class SVGConvereterMenuProvider(GObject.GObject, FileManager.MenuProvider):
     def convert(self, menu, selected):
         files = get_files(selected)
         diib = DoItInBackground(files)
-        progreso = Progreso(_('Convert to svg'), None, len(files))
+        progreso = Progreso(_('Convert to svg'), window, len(files))
         diib.connect('started', progreso.set_max_value)
         diib.connect('start_one', progreso.set_element)
         diib.connect('end_one', progreso.increase)

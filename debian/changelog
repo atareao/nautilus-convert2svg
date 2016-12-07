@@ -1,3 +1,9 @@
+nautilus-convert2svg (0.3.0-1ubuntu0) xenial; urgency=medium
+
+  * Modal
+
+ -- Lorenzo Carbonell <lorenzo.carbonell.cerezo@gmail.com>  Wed, 07 Dec 2016 20:22:00 +0100
+
 nautilus-convert2svg (0.2.0-1ubuntu0) xenial; urgency=medium
 
   * Fixed some bugs
