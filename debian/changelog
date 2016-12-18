@@ -1,4 +1,9 @@
-nautilus-convert2svg (0.3.0-1ubuntu0) xenial; urgency=medium
+nautilus-convert2svg (0.4.0-0extras16.04.1) xenial; urgency=medium
+
+  * updated icon
+
+ -- Lorenzo Carbonell <lorenzo.carbonell.cerezo@gmail.com>  Sun, 18 Dec 2016 10:41:04 +0100
+ nautilus-convert2svg (0.3.0-1ubuntu0) xenial; urgency=medium
 
   * Modal
 

@@ -40,9 +40,12 @@ from gi.repository import Gtk
 from gi.repository import GLib
 from gi.repository import Nautilus as FileManager
 
+APPNAME = 'nautilus-convert2svg'
+ICON = 'nautilus-convert2svg'
+VERSION = '0.3.0'
+
 EXTENSIONS_FROM = ['.bmp', '.eps', '.gif', '.jpg', '.pcx', '.png', '.ppm',
                    '.tif', '.tiff', '.webp']
-SEPARATOR = u'\u2015' * 10
 
 _ = str
 
@@ -256,7 +259,7 @@ class SVGConvereterMenuProvider(GObject.GObject, FileManager.MenuProvider):
                 return False
         return True
 
-    def convert(self, menu, selected):
+    def convert(self, menu, selected, window):
         files = get_files(selected)
         diib = DoItInBackground(files)
         progreso = Progreso(_('Convert to svg'), window, len(files))
@@ -269,15 +272,68 @@ class SVGConvereterMenuProvider(GObject.GObject, FileManager.MenuProvider):
         progreso.run()
 
     def get_file_items(self, window, sel_items):
-        if self.all_files_are_images(sel_items):
+        """
+        Adds the 'Replace in Filenames' menu item to the File Manager\
+        right-click menu, connects its 'activate' signal to the 'run'\
+        method passing the selected Directory/File
+        """
+        if self.all_files_are_sounds(sel_items):
             top_menuitem = FileManager.MenuItem(
-                name='SVGConverterMenuProvider::Gtk-svg-tools',
+                name='SVGConverterMenuProvider::Gtk-convert2svg-top',
                 label=_('Convert to svg'),
                 tip=_('Tool to convert to svg'))
-            top_menuitem.connect('activate', self.convert, sel_items)
+            submenu = FileManager.Menu()
+            top_menuitem.set_submenu(submenu)
+
+            sub_menuitem_00 = FileManager.MenuItem(
+                name='SVGConverterMenuProvider::Gtk-convert2svg-sub-01',
+                label=_('Convert'),
+                tip=_('Tool to convert to mp3'))
+            sub_menuitem_00.connect('activate',
+                                    self.convert,
+                                    sel_items,
+                                    window)
+            submenu.append_item(sub_menuitem_00)
+            sub_menuitem_01 = FileManager.MenuItem(
+                name='SVGConverterMenuProvider::Gtk-convert2svg-sub-02',
+                label=_('About'),
+                tip=_('About'))
+            sub_menuitem_01.connect('activate', self.about, window)
+            submenu.append_item(sub_menuitem_01)
             #
             return top_menuitem,
         return
+
+    def about(self, widget, window):
+        ad = Gtk.AboutDialog(parent=window)
+        ad.set_name(APPNAME)
+        ad.set_version(VERSION)
+        ad.set_copyright('Copyrignt (c) 2016\nLorenzo Carbonell')
+        ad.set_comments(APPNAME)
+        ad.set_license('''
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program. If not, see <http://www.gnu.org/licenses/>.
+''')
+        ad.set_website('http://www.atareao.es')
+        ad.set_website_label('http://www.atareao.es')
+        ad.set_authors([
+            'Lorenzo Carbonell <lorenzo.carbonell.cerezo@gmail.com>'])
+        ad.set_documenters([
+            'Lorenzo Carbonell <lorenzo.carbonell.cerezo@gmail.com>'])
+        ad.set_icon_name(ICON)
+        ad.set_logo_icon_name(APPNAME)
+        ad.run()
+        ad.destroy()
+
 if __name__ == '__main__':
     print(tempfile.NamedTemporaryFile(prefix='tmp_convert2svg_file',
                                       dir='/tmp/').name)
